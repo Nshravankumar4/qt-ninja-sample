@@ -5,5 +5,5 @@ qt_add_executable(QtNinjaSample
 )
 
 target_link_libraries(QtNinjaSample
-    Qt6::Widgets
+    PRIVATE Qt6::Widgets
 )
