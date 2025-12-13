@@ -1,3 +1,7 @@
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
 qt_add_executable(QtNinjaSample
     main.cpp
     MainWindow.cpp
@@ -5,5 +9,5 @@ qt_add_executable(QtNinjaSample
 )
 
 target_link_libraries(QtNinjaSample
-    Qt6::Widgets
+    PRIVATE Qt6::Widgets
 )
