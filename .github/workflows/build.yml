@@ -36,7 +36,7 @@ jobs:
         modules: widgets
 
     - name: Setup CMake
-      uses: lukka/get-cmake@v3
+      uses: jwlawson/actions-setup-cmake@v2
       with:
         cmake-version: '3.26.4'
 
