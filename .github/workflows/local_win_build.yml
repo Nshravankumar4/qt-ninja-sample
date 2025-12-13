@@ -1,10 +1,13 @@
 name: Local Windows Build
 
+# Trigger workflow on push to main or on pull requests
 on:
   push:
     branches:
       - main
   pull_request:
+    branches:
+      - main
 
 jobs:
   build-windows:
@@ -17,9 +20,11 @@ jobs:
       CMAKE_BUILD_TYPE: Release
 
     steps:
+    # Step 1: Checkout code
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    # Step 2: Setup Python 3.12 to fix pyzstd build
     - name: Setup Python 3.12
       uses: actions/setup-python@v4
       with:
@@ -28,11 +33,13 @@ jobs:
     - name: Upgrade pip
       run: python -m pip install --upgrade pip
 
+    # Step 3: Setup Visual Studio 2019
     - name: Setup Visual Studio 2019
       uses: microsoft/setup-msbuild@v1
       with:
         vs-version: '16.11.25' # VS2019
 
+    # Step 4: Install Qt 6.5.3
     - name: Setup Qt
       uses: jurplel/install-qt-action@v2
       with:
@@ -43,25 +50,29 @@ jobs:
         dir: ${{ env.QT_DIR }}
         modules: widgets
 
+    # Step 5: Install CMake
     - name: Setup CMake
       uses: jwlawson/actions-setup-cmake@v2
       with:
         cmake-version: '3.26.4'
 
+    # Step 6: Install Ninja
     - name: Install Ninja
       run: choco install ninja -y
 
+    # Step 7: Install Python dependencies (pre-built wheels)
     - name: Install Python dependencies
       run: pip install pyzstd --only-binary :all:
 
+    # Step 8: Configure CMake project
     - name: Configure CMake
       run: |
-        cmake -S . -B build -G ${{ env.CMAKE_GENERATOR }} ^
-          -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} ^
-          -DCMAKE_PREFIX_PATH=${{ env.QT_DIR }}
+        cmake -S . -B build -G ${{ env.CMAKE_GENERATOR }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=${{ env.QT_DIR }}
 
+    # Step 9: Build project
     - name: Build project
       run: cmake --build build --config ${{ env.CMAKE_BUILD_TYPE }}
 
-    - name: Run executable
+    # Step 10: Run executable
+    - name: Run QtNinjaSample
       run: build\QtNinjaSample.exe
