@@ -1,3 +1,136 @@
+Great! Let’s break it down step by step so it’s crystal clear. I’ll explain how gcc and g++ differ in the linking stage, how Qt + MinGW uses g++, and how this ties into Bullseye code coverage.
+
+
+---
+
+1️⃣ Linking stage differences: gcc vs g++
+
+gcc.exe (C compiler):
+
+Compiles C or C++ files.
+
+Does not automatically link the C++ standard library.
+
+Example:
+
+gcc main.cpp -o main
+
+❌ Will fail for C++ code using std::cout, std::vector, etc.
+
+To fix, you need to manually link:
+
+gcc main.cpp -lstdc++ -o main
+
+
+g++.exe (C++ compiler):
+
+Compiles C++ files.
+
+Automatically links the C++ standard library.
+
+Example:
+
+g++ main.cpp -o main
+
+✅ Works out-of-the-box for all C++ features.
+
+
+
+Key takeaway:
+g++ is the correct choice for C++ projects, gcc is for pure C projects.
+
+
+---
+
+2️⃣ Qt + MinGW usage
+
+Qt 6 with MinGW uses g++ for all C++ compilation.
+
+.cpp files → compiled with g++.
+
+.c files → compiled with gcc.
+
+Linking:
+
+g++ ensures all Qt C++ libraries are correctly linked.
+
+If you try to use gcc for a Qt project, you’ll get undefined references to Qt classes.
+
+
+
+Example with CMake (Qt6 project):
+
+cmake_minimum_required(VERSION 3.16)
+project(MyQtApp LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
+
+add_executable(MyQtApp main.cpp)
+target_link_libraries(MyQtApp Qt6::Core Qt6::Widgets)
+
+CMake will automatically choose g++ as the C++ compiler (if using MinGW).
+
+
+---
+
+3️⃣ How this affects Bullseye code coverage
+
+Bullseye Coverage instruments C/C++ binaries to record which lines are executed.
+
+Important: It hooks into the compiler/linker stage.
+
+If you accidentally use gcc for C++:
+
+Bullseye may not correctly instrument the C++ standard library calls.
+
+Coverage for your .cpp files may show missing lines.
+
+
+Correct usage:
+
+Use g++ for C++ files.
+
+Enable Bullseye coverage in your CMake project:
+
+option(APP_BULLSEYE_CODE_COVERAGE_ENABLED "Enable Bullseye Coverage" ON)
+if(APP_BULLSEYE_CODE_COVERAGE_ENABLED)
+    set(CMAKE_CXX_COMPILER "path/to/g++")
+    set(CMAKE_C_FLAGS "--coverage")   # or Bullseye-specific flags
+    set(CMAKE_CXX_FLAGS "--coverage") # or Bullseye-specific flags
+endif()
+
+
+Then when you build:
+
+g++ compiles .cpp → coverage data is correctly generated.
+
+gcc compiling .cpp may miss some coverage info.
+
+
+
+
+---
+
+✅ Summary
+
+Aspect	gcc.exe	g++.exe
+
+Compiles C++	Possible but unsafe	Native
+Links C++ stdlib	❌ No	✅ Yes
+Recommended for Qt/MinGW C++	❌ No	✅ Yes
+Bullseye coverage support	Limited for C++	Full support
+
+
+
+---
+
+If you want, I can draw a diagram showing the flow of compilation and linking with gcc vs g++ including Qt + Bullseye so it’s visually clear.
+
+Do you want me to make that diagram?
+
+
 Perfect 👍
 Below is a clean, easy-to-copy README.md that explains everything clearly:
 
