@@ -11,19 +11,15 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    # 1️⃣ Checkout source code
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # 2️⃣ Setup MSVC environment
     - name: Setup MSVC
       uses: ilammy/msvc-dev-cmd@v1
 
-    # 3️⃣ Install Ninja
     - name: Install Ninja
       uses: seanmiddleditch/gha-setup-ninja@v4
 
-    # 4️⃣ Install Qt 6 (LTS)
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
@@ -31,14 +27,8 @@ jobs:
         arch: win64_msvc2019_64
         cache: true
 
-    # 5️⃣ Configure CMake (Ninja)
     - name: Configure
-      run: |
-        cmake -S . -B build -G Ninja ^
-          -DCMAKE_BUILD_TYPE=Release ^
-          -DCMAKE_CXX_STANDARD=17
+      run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17
 
-    # 6️⃣ Build
     - name: Build
-      run: |
-        cmake --build build --config Release
+      run: cmake --build build
