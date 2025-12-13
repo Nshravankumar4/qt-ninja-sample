@@ -1,4 +1,4 @@
-Perfect 👍
+
 Below is a clean, easy-to-copy README.md that explains everything clearly:
 
 What tools are used
