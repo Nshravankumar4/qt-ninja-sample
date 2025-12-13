@@ -1,0 +1,33 @@
+name: Qt Ninja Build (Windows)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Ninja
+      uses: seanmiddleditch/gha-setup-ninja@v4
+
+    - name: Install Qt 6
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: 6.3.3
+        arch: win64_msvc2019_64
+        cache: true
+
+    - name: Configure CMake
+      run: |
+        cmake -S . -B build -G Ninja -DCMAKE_CXX_STANDARD=17
+
+    - name: Build
+      run: |
+        cmake --build build
