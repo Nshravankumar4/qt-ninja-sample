@@ -1,0 +1,54 @@
+name: Build Qt Ninja Sample (Windows)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    env:
+      QT_VERSION: 6.5.3
+      QT_DIR: C:\Qt\6.5.3\msvc2019_64
+      CMAKE_GENERATOR: Ninja
+      CMAKE_BUILD_TYPE: Release
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup Visual Studio 2019
+      uses: microsoft/setup-msbuild@v1
+      with:
+        vs-version: '16.11.25' # VS2019 latest minor version
+
+    - name: Setup Qt
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: ${{ env.QT_VERSION }}
+        host: windows
+        target: desktop
+        arch: win64_msvc2019_64
+        dir: ${{ env.QT_DIR }}
+        modules: widgets
+
+    - name: Setup CMake
+      uses: lukka/get-cmake@v3
+      with:
+        cmake-version: '3.26.4'
+
+    - name: Install Ninja
+      run: choco install ninja -y
+
+    - name: Configure CMake
+      run: |
+        cmake -S . -B build -G ${{ env.CMAKE_GENERATOR }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DCMAKE_PREFIX_PATH=${{ env.QT_DIR }}
+
+    - name: Build project
+      run: cmake --build build --config ${{ env.CMAKE_BUILD_TYPE }}
+
+    - name: Run executable
+      run: build\QtNinjaSample.exe
