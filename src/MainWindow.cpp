@@ -1,11 +1,8 @@
-#pragma once
+#include "MainWindow.h"
 
-#include <QMainWindow>
-
-class MainWindow : public QMainWindow
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
 {
-    Q_OBJECT
-
-public:
-    MainWindow(QWidget *parent = nullptr);
-};
+    setWindowTitle("Qt Ninja Sample");
+    resize(800, 600);
+}
